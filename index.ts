@@ -4,8 +4,8 @@ import sharp from 'sharp';
 import { program } from 'commander';
 
 program
-  .requiredOption('-i, --input <dir>', 'Input image directory')
-  .requiredOption('-o, --output <dir>', 'Output image directory')
+  .requiredOption('-i, --input <dir>', 'Input image directory', process.cwd())
+  .requiredOption('-o, --output <dir>', 'Output image directory', process.cwd())
   .option('-s, --size <size>', 'Crop size (e.g., 100x100 or 100x100@50,30)', parseSize)
   .option('-k, --keep-ratio', 'Maintain original aspect ratio')
   .option('-t, --top <pixels>', 'Number of pixels to crop from the top')
@@ -16,8 +16,8 @@ program
 program.parse(process.argv);
 
 const options = program.opts();
-const inputDir = options.input;
-const outputDir = options.output;
+const inputDir = options.input || process.cwd();
+const outputDir = options.output || process.cwd();
 const topCrop = options.top ? parseInt(options.top) : 0;
 const bottomCrop = options.bottom ? parseInt(options.bottom) : 0;
 const leftCrop = options.left ? parseInt(options.left) : 0;
