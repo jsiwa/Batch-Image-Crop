@@ -4,14 +4,14 @@ import sharp from 'sharp';
 import { program } from 'commander';
 
 program
-  .requiredOption('-i, --input <dir>', '输入图片目录')
-  .requiredOption('-o, --output <dir>', '输出图片目录')
-  .option('-s, --size <size>', '裁剪尺寸 (例如: 100x100 或 100x100@50,30)', parseSize)
-  .option('-k, --keep-ratio', '保持原始宽高比')
-  .option('-t, --top <pixels>', '从顶部裁剪的像素数')
-  .option('-b, --bottom <pixels>', '从底部裁剪的像素数')
-  .option('-l, --left <pixels>', '从左侧裁剪的像素数')
-  .option('-r, --right <pixels>', '从右侧裁剪的像素数');
+  .requiredOption('-i, --input <dir>', 'Input image directory')
+  .requiredOption('-o, --output <dir>', 'Output image directory')
+  .option('-s, --size <size>', 'Crop size (e.g., 100x100 or 100x100@50,30)', parseSize)
+  .option('-k, --keep-ratio', 'Maintain original aspect ratio')
+  .option('-t, --top <pixels>', 'Number of pixels to crop from the top')
+  .option('-b, --bottom <pixels>', 'Number of pixels to crop from the bottom')
+  .option('-l, --left <pixels>', 'Number of pixels to crop from the left')
+  .option('-r, --right <pixels>', 'Number of pixels to crop from the right');
 
 program.parse(process.argv);
 
@@ -25,11 +25,11 @@ const rightCrop = options.right ? parseInt(options.right) : 0;
 const { width, height, x = 0, y = 0 } = options.size || {};
 const keepRatio = options.keepRatio;
 
-// 解析尺寸参数，格式: 宽x高[@x,y]
+// Parse size parameter, format: widthxheight[@x,y]
 function parseSize(size: string) {
   const match = size.match(/^(\d+)x(\d+)(?:@(\d+),(\d+))?$/);
   if (!match) {
-    throw new Error('尺寸格式错误，正确格式: 宽x高 或 宽x高@x,y (例如: 100x100 或 100x100@50,30)');
+    throw new Error('Invalid size format, correct format: widthxheight or widthxheight@x,y (e.g., 100x100 or 100x100@50,30)');
   }
   return {
     width: parseInt(match[1]),
@@ -45,7 +45,7 @@ if (!fs.existsSync(outputDir)) {
 
 fs.readdir(inputDir, (err, files) => {
   if (err) {
-    console.error('读取目录出错:', err);
+    console.error('Error reading directory:', err);
     return;
   }
 
@@ -54,7 +54,7 @@ fs.readdir(inputDir, (err, files) => {
     const outputFilePath = path.join(outputDir, file);
     
     if (!file.match(/\.(jpg|jpeg|png|webp)$/i)) {
-      console.log(`跳过非图片文件: ${file}`);
+      console.log(`Skipping non-image file: ${file}`);
       return;
     }
 
@@ -62,7 +62,7 @@ fs.readdir(inputDir, (err, files) => {
       let pipeline = sharp(inputFilePath);
       
       if (topCrop || bottomCrop || leftCrop || rightCrop) {
-        // 如果指定了边缘裁剪
+        // If edge cropping is specified
         const metadata = await pipeline.metadata();
         pipeline = pipeline.extract({
           left: leftCrop,
@@ -71,7 +71,7 @@ fs.readdir(inputDir, (err, files) => {
           height: metadata.height! - topCrop - bottomCrop
         });
       } else if (options.size) {
-        // 如果指定了尺寸
+        // If size is specified
         if (keepRatio) {
           pipeline = pipeline.resize(width, height, {
             fit: 'contain',
@@ -83,9 +83,9 @@ fs.readdir(inputDir, (err, files) => {
       }
       
       await pipeline.toFile(outputFilePath);
-      console.log(`已处理: ${file}`);
+      console.log(`Processed: ${file}`);
     } catch (err) {
-      console.error(`处理文件 ${file} 出错:`, err);
+      console.error(`Error processing file ${file}:`, err);
     }
   });
 });
