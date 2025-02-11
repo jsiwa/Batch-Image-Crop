@@ -58,6 +58,11 @@ fs.readdir(inputDir, (err, files) => {
       return;
     }
 
+    if (inputFilePath === outputFilePath) {
+      console.error(`Skipping file ${file}: Input and output paths are the same.`);
+      return;
+    }
+
     try {
       let pipeline = sharp(inputFilePath);
       
